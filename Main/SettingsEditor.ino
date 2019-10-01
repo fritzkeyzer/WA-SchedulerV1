@@ -96,15 +96,15 @@ void settings_adjust()
 	{
 		setting_startHour = 0;
 	}
-	if (setting_startMin >= 61)
+	if (setting_startMin >= 60)
 	{
 		setting_startMin = 0;
 	}
-	if (setting_durL >= 99)
+	if (setting_durL >= 59)
 	{
 		setting_durL = 1;
 	}
-	if (setting_durH >= 99)
+	if (setting_durH >= 59)
 	{
 		setting_durH = 1;
 	}
