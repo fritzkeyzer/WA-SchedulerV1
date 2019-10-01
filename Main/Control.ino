@@ -18,7 +18,7 @@ void control_update()
 	}
 	else
 	{
-		if (time_now.hour() == setting_scheduleStartHour && time_now.minute() == setting_scheduleStartMinute)
+		if (control_checkTime())
 		{
 			//sequence start time
 			
@@ -38,6 +38,8 @@ void control_update()
 				timer_sequence.reset();
 				
 				state_sequencePos = 0;
+				
+				//return;
 			}
 		}
 	
@@ -58,14 +60,21 @@ void control_update()
 					//reset sequence
 					
 					state_sequencePos = -1;
+					control_resetValveStates();
 				}
-				
-				control_resetValveStates();
-				state_valves[state_sequencePos] = true;
+				else
+				{
+					//sequence is not complete
+					//set correct output
+					
+					control_resetValveStates();
+					state_valves[state_sequencePos] = true;
+				}
 			}
 		}
 		else 
 		{
+			//(state_sequencePos == -1
 			//sequence has stopped:
 			//reset valves
 			
@@ -77,6 +86,18 @@ void control_update()
 	
 }
 
+bool control_checkTime()
+{
+	if (time_now.hour() == setting_scheduleStartHour && time_now.minute() == setting_scheduleStartMinute)
+	{
+		return true;
+	}
+	else if (time_now.hour() == (setting_scheduleStartHour + 6) && time_now.minute() == setting_scheduleStartMinute)
+	{
+		return true;
+	}
+	return false;
+}
 
 void control_resetValveStates()
 {
