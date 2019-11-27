@@ -4,22 +4,25 @@ File file_settings;
 const String fileName_log = "log.csv";
 //const String fileName_settings = "settings.ini";
 const char *fileName_settings = "settings.ini";
-const int pin_cs = 2;
+const int pin_cs = A5;
 
 void sd_setup()
 {
 	pinMode(pin_cs, OUTPUT);
 
+	//file_log.close();
+	//file_settings.close();
+
 	// SD Card Initialization
 	if (SD.begin(pin_cs))
 	{
 		Serial.println("SD card connected");
-		error_logging = false;
+		sd_error(false);
 	}
 	else
 	{
 		Serial.println("SD card connection failed");
-		error_logging = true;
+		sd_error(true);
 		return;
 	}
 
@@ -59,6 +62,30 @@ void sd_setup()
 	*/
 }
 
+void sd_error(bool _error)
+{
+	if (_error)
+	{
+		if (!error_SD)
+		{
+			time_logErrorSince = time_now;
+			timerSDCheck.setInterval(sdCheck_error);
+		}
+		error_SD = true;
+		Serial.println("error_SD = true");
+	}
+	else
+	{
+		if (error_SD)
+		{
+			timerSDCheck.setInterval(sdCheck_good);
+		}
+		error_SD = false;
+		Serial.println("error_SD = false");
+	}
+	
+}
+
 void sd_readSettings()
 {
 	/*
@@ -77,7 +104,7 @@ void sd_readSettings()
 		Serial.print("Ini file ");
 		Serial.print(fileName_settings);
 		Serial.println(" does not exist");
-		error_settings = true;
+		sd_error(true);
 		return;
 	}
 	Serial.println("Ini file exists");
@@ -86,20 +113,26 @@ void sd_readSettings()
 	// are longer than the buffer.
 	if (!ini.validate(buffer, bufferLen))
 	{
-		Serial.print("ini file ");
-		Serial.print(ini.getFilename());
-		Serial.print(" not valid: ");
+		Serial.print("Ini file ");
+		Serial.print(fileName_settings);
+		Serial.println(" not valid -> error_SD = true");
 		//printErrorMessage(ini.getError());
-		error_settings = true;
+		sd_error(true);
 		return;
 	}
-	Serial.println("Ini file valid");
+	else
+	{
+		Serial.println("Ini file valid -> error_SD = false");
+		sd_error(false);
+	}
+	
+	
 	
 	// Fetch a value from a key which is present
 	if (ini.getValue("SCHEDULE", "start_time", buffer, bufferLen))
 	{
-		Serial.print("section 'SCHEDULE' has an entry 'start_time' with value ");
-		Serial.println(buffer);
+		//Serial.print("section 'SCHEDULE' has an entry 'start_time' with value ");
+		//Serial.println(buffer);
 		
 		char buf[2];
 		buf[0] = buffer[0];
@@ -116,15 +149,15 @@ void sd_readSettings()
 	else
 	{
 		Serial.print("Could not read 'start_time' from section 'SCHEDULE'");
-		error_settings = true;
+		sd_error(true);
 		return;
 	}
 	
 	// Fetch a value from a key which is present
 	if (ini.getValue("SCHEDULE", "time_per_zone_light", buffer, bufferLen))
 	{
-		Serial.print("section 'SCHEDULE' has an entry 'time_per_zone_light' with value ");
-		Serial.println(buffer);
+		//Serial.print("section 'SCHEDULE' has an entry 'time_per_zone_light' with value ");
+		//Serial.println(buffer);
 		
 		char buf[2];
 		buf[0] = buffer[0];
@@ -139,15 +172,15 @@ void sd_readSettings()
 	else
 	{
 		Serial.print("Could not read 'time_per_zone_light' from section 'SCHEDULE'");
-		error_settings = true;
+		sd_error(true);
 		return;
 	}
 	
 	// Fetch a value from a key which is present
 	if (ini.getValue("SCHEDULE", "time_per_zone_heavy", buffer, bufferLen))
 	{
-		Serial.print("section 'SCHEDULE' has an entry 'time_per_zone_heavy' with value ");
-		Serial.println(buffer);
+		//Serial.print("section 'SCHEDULE' has an entry 'time_per_zone_heavy' with value ");
+		//Serial.println(buffer);
 		
 		char buf[2];
 		buf[0] = buffer[0];
@@ -162,15 +195,59 @@ void sd_readSettings()
 	else
 	{
 		Serial.print("Could not read 'time_per_zone_heavy' from section 'SCHEDULE'");
-		error_settings = true;
+		sd_error(true);
+		return;
+	}
+
+	if (ini.getValue("SCHEDULE", "seedling_interval", buffer, bufferLen))
+	{
+		//Serial.print("section 'SCHEDULE' has an entry 'seedling_interval' with value ");
+		//Serial.println(buffer);
+		
+		char buf[2];
+		buf[0] = buffer[0];
+		buf[1] = buffer[1];
+		int hours = atoi(buf);
+		buf[0] = buffer[3];
+		buf[1] = buffer[4];
+		setting_seedlingInterval = 60*hours + atoi(buf);
+		Serial.print("Schedule seedling_interval: ");
+		Serial.println(setting_seedlingInterval);
+	}
+	else
+	{
+		Serial.print("Could not read 'seedling_interval' from section 'SCHEDULE'");
+		sd_error(true);
+		return;
+	}
+
+	if (ini.getValue("SCHEDULE", "seedling_time", buffer, bufferLen))
+	{
+		//Serial.print("section 'SCHEDULE' has an entry 'seedling_time' with value ");
+		//Serial.println(buffer);
+		
+		char buf[2];
+		buf[0] = buffer[0];
+		buf[1] = buffer[1];
+		int hours = atoi(buf);
+		buf[0] = buffer[3];
+		buf[1] = buffer[4];
+		setting_seedlingTime = 60*hours + atoi(buf);
+		Serial.print("Schedule seedling_time: ");
+		Serial.println(setting_seedlingTime);
+	}
+	else
+	{
+		Serial.print("Could not read 'seedling_time' from section 'SCHEDULE'");
+		sd_error(true);
 		return;
 	}
 	
 	// Fetch a value from a key which is present
 	if (ini.getValue("FLOW_METER", "volume_per_tick", buffer, bufferLen))
 	{
-		Serial.print("section 'FLOW_METER' has an entry 'volume_per_tick' with value ");
-		Serial.println(buffer);
+		//Serial.print("section 'FLOW_METER' has an entry 'volume_per_tick' with value ");
+		//Serial.println(buffer);
 		
 		//char buf[2];
 		//buf[0] = buffer[0];
@@ -185,7 +262,7 @@ void sd_readSettings()
 	else
 	{
 		Serial.print("Could not read 'volume_per_tick' from section 'FLOW_METER'");
-		error_settings = true;
+		sd_error(true);
 		return;
 	}
 }
@@ -213,6 +290,12 @@ void sd_writeSettings()
 		file_settings.println(buf);
 		
 		sprintf(buf, "time_per_zone_heavy = %02d:%02d", setting_scheduleMinutesPerZoneHeavy/60, setting_scheduleMinutesPerZoneHeavy%60);
+		file_settings.println(buf);
+
+		sprintf(buf, "seedling_interval = %02d:%02d", setting_seedlingInterval/60, setting_seedlingInterval%60);
+		file_settings.println(buf);
+
+		sprintf(buf, "seedling_time = %02d:%02d", setting_seedlingTime/60, setting_seedlingTime%60);
 		file_settings.println(buf);
 		
 		file_settings.println();
@@ -245,13 +328,13 @@ void sd_writeSettings()
 
 void sd_log(String event, String value)
 {
-	if (error_logging)
+	if (error_SD)
 	{
 		Serial.println("Attempting to reconnect sd card");
 		sd_setup();
 	}
 
-	if (!error_logging)
+	if (!error_SD)
 	{
 		SD.exists(fileName_log);
 
@@ -263,9 +346,9 @@ void sd_log(String event, String value)
 		// Create/Open file
 		file_log = SD.open(fileName_log, FILE_WRITE);
 
-		// if the file opened okay, write to it:
 		if (file_log)
 		{
+			// if the file opened okay, write to it:
 			//Serial.println("Writing to file...");
 			// Write to file
 			file_log.print(dat);
@@ -277,15 +360,19 @@ void sd_log(String event, String value)
 			file_log.println(value);
 			file_log.close(); // close the file
 
-			
-
-			time_logErrorSince = time_now;
+			//time_logErrorSince = time_now;
 		}
 		// if the file didn't open, print an error:
 		else
 		{
-			error_logging = true;
+			sd_error(true);
 			Serial.println("Error writing to log");
 		}
 	}
+}
+
+void sd_checkSDCard()
+{
+	//check card
+	sd_readSettings();
 }

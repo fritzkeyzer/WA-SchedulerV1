@@ -1,6 +1,10 @@
 SimpleThread timer_sequence = SimpleThread(1000);
 SimpleThread timer_minute = SimpleThread(1000);
 
+SimpleThread timer_seedlingInterval = SimpleThread(3600000);
+SimpleThread timer_seedlingTime = SimpleThread(600000);
+
+
 
 void control_setup()
 {
@@ -11,10 +15,11 @@ void control_update()
 {
 	if (state_manualPower)
 	{
-		state_sequencePos = state_manualZone;
+		//state_sequencePos = state_manualZone;
 		
 		control_resetValveStates();
-		state_valves[state_sequencePos] = true;
+		control_resetSeedlingValve();
+		state_valves[state_manualZone] = true;
 	}
 	else
 	{
@@ -29,7 +34,7 @@ void control_update()
 				//reset timers
 				//start schedule
 				
-				Serial.println("//start schedule");
+				Serial.println("start schedule");
 				
 				state_heavyDay = !state_heavyDay;
 				
@@ -80,6 +85,27 @@ void control_update()
 			
 			control_resetValveStates();
 		}
+
+		if (!state_seedlingWatering)
+		{
+			control_resetSeedlingValve();
+
+			if (timer_seedlingInterval.check())
+			{
+				state_valves[7] = true;
+				timer_seedlingTime.reset();
+				state_seedlingWatering = true;
+			}
+		}
+		else
+		{
+			if (timer_seedlingTime.check())
+			{
+				control_resetSeedlingValve();
+				state_seedlingWatering = false;
+			}
+		}
+		
 	}
 	
 	
@@ -101,16 +127,21 @@ bool control_checkTime()
 
 void control_resetValveStates()
 {
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		state_valves[i] = false;
 	}
 }
 
+void control_resetSeedlingValve()
+{
+	state_valves[7] = false;
+}
+
 void control_manualZoneIncrement()
 {
 	state_manualZone++;
-	if (state_manualZone >= 7)
+	if (state_manualZone >= 8)
 	{
 		state_manualZone = 0;
 	}

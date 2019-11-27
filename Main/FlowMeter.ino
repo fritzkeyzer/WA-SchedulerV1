@@ -48,7 +48,7 @@ void flow_callback()
 		if (!flowSensor && flowSensorPrev)
 		{
 			//input is different to last logged value:
-			currentFlowRate = flow_calcFlowRate();
+			//currentFlowRate = flow_calcFlowRate();
 			currentVolume += volumePerTick;
 			lastTick = millis();
 			Serial.println("pulse");

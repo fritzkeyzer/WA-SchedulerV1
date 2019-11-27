@@ -31,6 +31,7 @@ void clock_setup()
 	//Clock.adjust(DateTime(F(__DATE__), F(__TIME__)));			//uncomment to set time... Keep commented thereafter...
 	
 	clock_update();
+	time_logErrorSince = time_now;
 }
 
 void clock_update()

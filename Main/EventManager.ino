@@ -8,6 +8,7 @@ bool flag_heavyDay = true;
 
 bool flag_manualPower = false;
 int flag_manualZone = 0;
+bool flag_errorSD = false;
 
 void event_update()
 {
@@ -69,6 +70,13 @@ void event_update()
 	{
 							event_log("DAY", "LIGHT_WATERING", true);
 	}
+	if (!error_SD && flag_errorSD)
+	{
+		TimeSpan dur = time_now - time_logErrorSince;
+		char since_buf[16];
+		sprintf(since_buf, "Duration: %03dd %02dh%02dm", dur.days(), dur.hours(), dur.minutes());
+							event_log("SD_ERROR_RESOLVED", since_buf, true);
+	}
 	
 	if (time_now.minute() == 0)
 	//if (true)
@@ -94,7 +102,7 @@ void event_update()
 	flag_heavyDay				= state_heavyDay;
 	flag_manualPower			= state_manualPower;
 	flag_manualZone				= state_manualZone;
-	
+	flag_errorSD				= error_SD;
 	
 }
 

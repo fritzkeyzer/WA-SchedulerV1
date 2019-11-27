@@ -1,5 +1,5 @@
 //settings:
-SimpleThread timer_displayCycle(4000);					//display cycle time
+SimpleThread timer_displayCycle(2500);					//display cycle time
 
 SimpleThread timer_displayIrrigationCycle(2000);		//display flash time
 
@@ -29,6 +29,8 @@ int 	display_settings_sequenceStartHour = 0;
 int 	display_settings_sequenceStartMinute = 0;
 int 	display_settings_sequenceDurationLight = 0;
 int 	display_settings_sequenceDurationHeavy = 0;
+int 	display_settings_seedlingInterval = 0;
+int 	display_settings_seedlingTime = 0;
 
 
 void display_setup()
@@ -88,6 +90,16 @@ void display_cycle()
 	//Serial.println(currentScreen);
 	
 	//currentScreen = 5;
+
+	if (error_SD)
+	{
+		currentScreen = 7;
+	}
+	else if (currentScreen == 7)
+	{
+		currentScreen = 0;
+	}
+	
 	
 	switch (currentScreen)
 	{
@@ -115,23 +127,24 @@ void display_cycle()
 			display_screen_scheduleDetailsC();
 			currentScreen ++;
 		break;
-		
+
 		case 4:
-			display_screen_soilMoisture();
-			if (error_logging)			currentScreen = 5;
-			else if (error_settings)	currentScreen = 6;
-			else						currentScreen = 0;
+			display_screen_scheduleDetailsD();
+			currentScreen ++;
 		break;
-		
+
 		case 5:
-			display_screen_logError();
-			if (error_settings)			currentScreen = 6;
-			else						currentScreen = 0;
+			display_screen_scheduleDetailsE();
+			currentScreen ++;
 		break;
 		
 		case 6:
-			display_screen_settingsError();
-			currentScreen = 0;
+			display_screen_soilMoisture();
+			currentScreen ++;
+		break;
+		
+		case 7:
+			display_screen_SDError();
 		break;
 	}
 	
@@ -239,28 +252,38 @@ void display_screen_scheduleDetailsC()
 	lcd.print(arr);
 }
 
-void display_screen_logError()
+void display_screen_scheduleDetailsD()
 {
 	lcd.clear();
 	lcd.setCursor(0, 0);
-	lcd.print("Logging Error:");
+	lcd.print("Seedling Time:");
+	lcd.setCursor(0, 1);
+	char arr[16];
+	sprintf(arr, "Between %d min", setting_seedlingInterval);
+	lcd.print(arr);
+}
+
+void display_screen_scheduleDetailsE()
+{
+	lcd.clear();
+	lcd.setCursor(0, 0);
+	lcd.print("Seedling Time:");
+	lcd.setCursor(0, 1);
+	char arr[16];
+	sprintf(arr, "Duration %d min", setting_seedlingTime);
+	lcd.print(arr);
+}
+
+void display_screen_SDError()
+{
+	lcd.clear();
+	lcd.setCursor(0, 0);
+	lcd.print("SD Card Error:");
 	lcd.setCursor(0, 1);
 	TimeSpan dur = time_now - time_logErrorSince;
 	char since_buf[16];
 	sprintf(since_buf, "For %03dd %02dh%02dm", dur.days(), dur.hours(), dur.minutes());
 	lcd.print(since_buf);
-}
-
-void display_screen_settingsError()
-{
-	lcd.clear();
-	lcd.setCursor(0, 0);
-	lcd.print("Settings Error:");
-	//lcd.setCursor(0, 1);
-	//TimeSpan dur = time_now - time_logErrorSince;
-	//char since_buf[16];
-	//sprintf(since_buf, "For %03dd %02dh%02dm", dur.days(), dur.hours(), dur.minutes());
-	//lcd.print(since_buf);
 }
 
 void display_settings_set(	int _pos, 
@@ -272,7 +295,9 @@ void display_settings_set(	int _pos,
 							int _startHour, 
 							int _startMin, 
 							int _durL, 
-							int _durH)
+							int _durH,
+							int _seedlingInterval,
+							int _seedlingTime)
 {
 	display_settings_pos = _pos;
 	display_settings_year = _year;
@@ -284,6 +309,8 @@ void display_settings_set(	int _pos,
 	display_settings_sequenceStartMinute = _startMin;
 	display_settings_sequenceDurationLight = _durL;
 	display_settings_sequenceDurationHeavy = _durH;
+	display_settings_seedlingInterval = _seedlingInterval;
+	display_settings_seedlingTime = _seedlingTime;
 	
 	display_settings = true;
 	if (_pos == -1) 
@@ -415,6 +442,32 @@ void display_screen_settings(bool _flash)
 		{
 			sprintf(bufA, "Time per zone:");
 			sprintf(bufB, "Heavy    mins");
+		}
+	}
+	else if (display_settings_pos == 9)	// SEEDLING INTERVAL
+	{
+		if (_flash)
+		{
+			sprintf(bufA, "Seedling Time:");
+			sprintf(bufB, "Between %02d min", display_settings_seedlingInterval);
+		}
+		else
+		{
+			sprintf(bufA, "Seedling Time:");
+			sprintf(bufB, "Between    min");
+		}
+	}
+	else if (display_settings_pos == 10)	// SEEDLING TIME
+	{
+		if (_flash)
+		{
+			sprintf(bufA, "Seedling Time:");
+			sprintf(bufB, "Duration %02d min", display_settings_seedlingTime);
+		}
+		else
+		{
+			sprintf(bufA, "Seedling Time:");
+			sprintf(bufB, "Duration    min");
 		}
 	}
 	

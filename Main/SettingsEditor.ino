@@ -22,7 +22,7 @@ void settings_next()
 		settings_load();
 		setting_loaded = true;
 	}
-	else if (setting_pos >= 9)
+	else if (setting_pos >= 11)
 	{
 		setting_pos = -1;
 		settings_save();
@@ -30,7 +30,18 @@ void settings_next()
 	
 	
 	
-	display_settings_set(setting_pos, setting_year, setting_month, setting_day, setting_hour, setting_minute, setting_startHour, setting_startMin, setting_durL, setting_durH);
+	display_settings_set(setting_pos, 
+							setting_year, 
+							setting_month, 
+							setting_day, 
+							setting_hour, 
+							setting_minute, 
+							setting_startHour, 
+							setting_startMin, 
+							setting_durL, 
+							setting_durH, 
+							setting_seedlingInterval, 
+							setting_seedlingTime);
 }
 
 void settings_adjust()
@@ -109,7 +120,18 @@ void settings_adjust()
 		setting_durH = 1;
 	}
 	
-	display_settings_set(setting_pos, setting_year, setting_month, setting_day, setting_hour, setting_minute, setting_startHour, setting_startMin, setting_durL, setting_durH);
+	display_settings_set(setting_pos, 
+							setting_year, 
+							setting_month, 
+							setting_day, 
+							setting_hour, 
+							setting_minute, 
+							setting_startHour, 
+							setting_startMin, 
+							setting_durL, 
+							setting_durH, 
+							setting_seedlingInterval, 
+							setting_seedlingTime);
 }
 
 void settings_update()
@@ -123,7 +145,7 @@ void settings_update()
 
 void settings_save()
 {
-	display_settings_set(-1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	display_settings_set(-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	DateTime adjusted(setting_year, setting_month, setting_day, setting_hour, setting_minute, 0);
 	Clock.adjust(adjusted);
 	
