@@ -374,5 +374,6 @@ void sd_log(String event, String value)
 void sd_checkSDCard()
 {
 	//check card
+	Serial.println("Checking SD Card");
 	sd_readSettings();
 }
