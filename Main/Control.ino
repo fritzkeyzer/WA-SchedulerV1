@@ -182,4 +182,6 @@ void control_manualPowerToggle()
 	}
 	Serial.print("state_manualPower = ");
 	Serial.println(state_manualPower);
+	Serial.print("state_sequencePos = ");
+	Serial.println(state_sequencePos);
 }
