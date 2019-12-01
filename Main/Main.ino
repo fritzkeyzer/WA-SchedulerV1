@@ -118,7 +118,7 @@ void loop()
 		//display
 		display_update();
 		
-		//control scheme		- determine whether pump should be pumping or not
+		//control scheme		- determine whether valves should be open or not
 		control_update();
 		
 		//event log				- log events to sd card, set flags equal to states
@@ -127,14 +127,14 @@ void loop()
 	
 	if (mediumTimer.check())
 	{
-		//time update			- update current time, update from rtc once per day
+		//time update			- update current time
 		clock_update();
 	}
 
 	if (timerSDCheck.check())
 	{
-		Serial.println("Checking SD Card");
 		sd_checkSDCard();
+		control_debugValveStates();
 	}
 }
 
