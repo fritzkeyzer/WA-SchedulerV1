@@ -82,16 +82,24 @@ void settings_adjust()
 	{
 		setting_durH++;
 	}
+	else if (setting_pos == 9)
+	{
+		setting_seedlingInterval += 10;
+	}
+	else if (setting_pos == 10)
+	{
+		setting_seedlingTime++;
+	}
 	
 	if (setting_year >= 2050)
 	{
-		setting_year = 2019;
+		setting_year = 2020;
 	}
-	if (setting_month >= 13)
+	if (setting_month > 12)
 	{
 		setting_month = 1;
 	}
-	if (setting_day >= 32)
+	if (setting_day > 31)
 	{
 		setting_day = 1;
 	}
@@ -111,13 +119,21 @@ void settings_adjust()
 	{
 		setting_startMin = 0;
 	}
-	if (setting_durL >= 59)
+	if (setting_durL > 60)
 	{
 		setting_durL = 1;
 	}
-	if (setting_durH >= 59)
+	if (setting_durH > 60)
 	{
 		setting_durH = 1;
+	}
+	if (setting_seedlingInterval > 720)
+	{
+		setting_seedlingInterval = 10;
+	}
+	if (setting_seedlingTime > 60)
+	{
+		setting_seedlingTime = 1;
 	}
 	
 	display_settings_set(setting_pos, 
@@ -155,6 +171,7 @@ void settings_save()
 	setting_scheduleMinutesPerZoneHeavy = setting_durH;
 	
 	sd_writeSettings();
+	sd_readSettings();
 }
 
 void settings_load()
