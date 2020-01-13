@@ -5,10 +5,10 @@ SimpleThread timer_seedlingInterval = SimpleThread(3600000);
 SimpleThread timer_seedlingTime = SimpleThread(600000);
 
 
-
 void control_setup()
 {
 	control_resetValveStates();
+	timer_seedlingInterval.reset();
 }
 
 void control_update()
@@ -83,7 +83,8 @@ void control_update()
 				}
 				
 				Serial.print("state_sequencePos = ");
-				Serial.println(state_sequencePos);
+				Serial.print(state_sequencePos);
+				Serial.println();
 			}
 		}
 		else 
@@ -124,12 +125,12 @@ bool control_checkTime()
 {
 	if (time_now.hour() == setting_scheduleStartHour && time_now.minute() == setting_scheduleStartMinute)
 	{
-		Serial.println("control_checkTime = true");
+		//Serial.println("control_checkTime = true");
 		return true;
 	}
 	else if (time_now.hour() == (setting_scheduleStartHour + 6) && time_now.minute() == setting_scheduleStartMinute)
 	{
-		Serial.println("control_checkTime = true");
+		//Serial.println("control_checkTime = true");
 		return true;
 	}
 	//Serial.println("control_checkTime = false");
@@ -138,16 +139,19 @@ bool control_checkTime()
 
 void control_resetValveStates()
 {
-	Serial.println("control_resetValveStates");
-	for (int i = 0; i < 7; i++)
-	{
-		state_valves[i] = false;
-	}
+	//Serial.println("control_resetValveStates");
+	state_valves[0] = false;
+	state_valves[1] = false;
+	state_valves[2] = false;
+	state_valves[3] = false;
+	state_valves[4] = false;
+	state_valves[5] = false;
+	state_valves[6] = false;
 }
 
 void control_resetSeedlingValve()
 {
-	Serial.println("control_resetSeedlingValve");
+	//Serial.println("control_resetSeedlingValve");
 	state_valves[7] = false;
 }
 
@@ -157,8 +161,8 @@ void control_debugValveStates()
 	for (int i = 0; i < 8; i++)
 	{
 		Serial.print(i);
-		Serial.print(" = ");
-		Serial.println(state_valves[i]);
+		if (state_valves[i]) Serial.println(" = ON");
+		else Serial.println(" = OFF");
 	}
 }
 
