@@ -213,6 +213,8 @@ void sd_readSettings()
 		setting_seedlingInterval = 60*hours + atoi(buf);
 		Serial.print("Schedule seedling_interval: ");
 		Serial.println(setting_seedlingInterval);
+		timer_seedlingInterval = SimpleThread(60000L * setting_seedlingInterval);
+		//timer_seedlingInterval.check();
 	}
 	else
 	{
@@ -235,6 +237,8 @@ void sd_readSettings()
 		setting_seedlingTime = 60*hours + atoi(buf);
 		Serial.print("Schedule seedling_time: ");
 		Serial.println(setting_seedlingTime);
+		timer_seedlingTime = SimpleThread(60000L * setting_seedlingTime);
+		//timer_seedlingTime.check();
 	}
 	else
 	{
