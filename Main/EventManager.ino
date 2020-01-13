@@ -25,6 +25,10 @@ void event_update()
 							event_log("SCHEDULE_TIME_PER_ZONE_HEAVY", arr, false);
 		sprintf(arr, "%.2f", setting_flowVolumePerTick);
 							event_log("FLOW_VOLUME_PER_TICK", arr, false);
+		sprintf(arr, "%02d:%02d", setting_seedlingInterval/60, setting_seedlingInterval%60);
+							event_log("SCHEDULE_SEEDLING_INTERVAL", arr, false);
+		sprintf(arr, "%02d:%02d", setting_seedlingTime/60, setting_seedlingTime%60);
+							event_log("SCHEDULE_SEEDLING_TIME", arr, false);
 	}
 	
 						
@@ -56,9 +60,9 @@ void event_update()
 	}
 	
 	if (state_manualPower && !flag_manualPower)
-							event_log("MANUAL_MODE", "ENABLED", true);
+							event_log("MODE", "MANUAL", true);
 	if (!state_manualPower && flag_manualPower)
-							event_log("AUTOMATIC_MODE", "ENABLED", true);
+							event_log("MODE", "AUTOMATIC", true);
 	
 	
 	
