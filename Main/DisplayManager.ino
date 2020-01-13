@@ -60,7 +60,7 @@ void display_update()
 			display_settings_flash = !display_settings_flash;
 		}
 	}
-	else if (state_sequencePos!= -1 && currentScreen != -1)
+	else if ((state_sequencePos!= -1  || state_manualPower || state_seedlingWatering) && currentScreen != -1)
 	{
 		if (timer_displayIrrigationCycle.check())
 		{
@@ -200,7 +200,10 @@ void display_screen_irrigatingPressure()
 	lcd.clear();
 	lcd.setCursor(0, 0);
 	char arr[16];
-	sprintf(arr, "Zone %d", state_sequencePos + 1);
+	int pos = state_sequencePos;
+	if (state_manualPower) pos = state_manualZone;
+	if (state_seedlingWatering) pos = 7;
+	sprintf(arr, "Zone %d", pos + 1);
 	lcd.print(arr);
 	lcd.setCursor(0, 1);
 	sprintf(arr, "%.2f bar", state_pressure);
@@ -212,7 +215,10 @@ void display_screen_irrigatingVolume()
 {
 	lcd.clear();
 	char arr[16];
-	sprintf(arr, "Zone %d", state_sequencePos + 1);
+	int pos = state_sequencePos;
+	if (state_manualPower) pos = state_manualZone;
+	if (state_seedlingWatering) pos = 7;
+	sprintf(arr, "Zone %d", pos + 1);
 	lcd.print(arr);
 	lcd.setCursor(0, 1);
 	sprintf(arr, "%.0f litres", min(state_flowVolume, 999999));
@@ -259,7 +265,7 @@ void display_screen_scheduleDetailsD()
 	lcd.print("Seedling Time:");
 	lcd.setCursor(0, 1);
 	char arr[16];
-	sprintf(arr, "Between %d min", setting_seedlingInterval);
+	sprintf(arr, "Interval %d min", setting_seedlingInterval);
 	lcd.print(arr);
 }
 
@@ -423,7 +429,7 @@ void display_screen_settings(bool _flash)
 		if (_flash)
 		{
 			sprintf(bufA, "Time per zone:");
-			sprintf(bufB, "Light %02d mins", display_settings_sequenceDurationLight);
+			sprintf(bufB, "Light %2d mins", display_settings_sequenceDurationLight);
 		}
 		else
 		{
@@ -436,7 +442,7 @@ void display_screen_settings(bool _flash)
 		if (_flash)
 		{
 			sprintf(bufA, "Time per zone:");
-			sprintf(bufB, "Heavy %02d mins", display_settings_sequenceDurationHeavy);
+			sprintf(bufB, "Heavy %2d mins", display_settings_sequenceDurationHeavy);
 		}
 		else
 		{
@@ -449,12 +455,12 @@ void display_screen_settings(bool _flash)
 		if (_flash)
 		{
 			sprintf(bufA, "Seedling Time:");
-			sprintf(bufB, "Between %02d min", display_settings_seedlingInterval);
+			sprintf(bufB, "Interval %3d min", display_settings_seedlingInterval);
 		}
 		else
 		{
 			sprintf(bufA, "Seedling Time:");
-			sprintf(bufB, "Between    min");
+			sprintf(bufB, "Interval     min");
 		}
 	}
 	else if (display_settings_pos == 10)	// SEEDLING TIME
@@ -462,7 +468,7 @@ void display_screen_settings(bool _flash)
 		if (_flash)
 		{
 			sprintf(bufA, "Seedling Time:");
-			sprintf(bufB, "Duration %02d min", display_settings_seedlingTime);
+			sprintf(bufB, "Duration %2d min", display_settings_seedlingTime);
 		}
 		else
 		{
