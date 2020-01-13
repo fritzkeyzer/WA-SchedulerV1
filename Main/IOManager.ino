@@ -213,7 +213,7 @@ void io_heartbeatLED_update()
 			r = 0;
 			g = heartbeatLED_brightness;
 		}
-		if (state_sequencePos != -1 || state_seedlingWatering)
+		if (state_sequencePos != -1 || state_seedlingWatering || state_manualPower)
 		{
 			b = 255 - heartbeatLED_brightness;
 		}
