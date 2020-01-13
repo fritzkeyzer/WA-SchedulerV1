@@ -36,7 +36,7 @@ Arduino IDE 1.8.5
 //settings
 SimpleThread fastTimer(20);						//input and output states 
 SimpleThread mediumTimer(1000);					//control logic
-SimpleThread timerSDCheck(10000);				//sd card check interval
+SimpleThread timerSDCheck(60000);				//sd card check interval
 
 long sdCheck_good = 60000;
 long sdCheck_error = 10000;
@@ -90,10 +90,10 @@ void setup()
 	
 	clock_setup();
 	io_setup();
-	control_setup();
 	display_setup();
 	sd_setup();
 	sd_readSettings();
+	control_setup();
 	
 	Serial.println("Setup complete");
 	
@@ -134,7 +134,7 @@ void loop()
 	if (timerSDCheck.check())
 	{
 		sd_checkSDCard();
-		control_debugValveStates();
+		//control_debugValveStates();
 	}
 }
 
