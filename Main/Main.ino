@@ -55,6 +55,11 @@ int setting_seedlingInterval = 60;
 int setting_seedlingTime = 5;
 float setting_flowVolumePerTick = 0.5;
 
+
+//timers
+SimpleThread timer_seedlingInterval = SimpleThread(3600000);
+SimpleThread timer_seedlingTime = SimpleThread(600000);
+
 //states
 int state_sequencePos = -1;
 bool state_heavyDay = true;
