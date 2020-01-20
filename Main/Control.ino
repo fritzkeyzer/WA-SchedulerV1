@@ -1,14 +1,14 @@
 SimpleThread timer_sequence = SimpleThread(1000);
 SimpleThread timer_minute = SimpleThread(1000);
 
-SimpleThread timer_seedlingInterval = SimpleThread(3600000);
-SimpleThread timer_seedlingTime = SimpleThread(600000);
+
 
 
 void control_setup()
 {
 	control_resetValveStates();
 	timer_seedlingInterval.reset();
+	timer_seedlingTime.reset();
 }
 
 void control_update()
@@ -57,6 +57,8 @@ void control_update()
 		{
 			//sequence is running:
 			
+			state_seedlingWatering = false;
+			
 			if (timer_sequence.check())
 			{
 				//timer has elapsed in the current sequence position
@@ -94,28 +96,33 @@ void control_update()
 			//reset valves
 			
 			control_resetValveStates();
+			
+			if (!state_seedlingWatering)
+			{
+				if (timer_seedlingInterval.check())
+				{
+					//Serial.println("Seedling Start");
+					state_valves[7] = true;
+					timer_seedlingTime.reset();
+					state_seedlingWatering = true;
+				}
+			}
 		}
 
-		if (!state_seedlingWatering)
-		{
-			control_resetSeedlingValve();
 
-			if (timer_seedlingInterval.check())
+		
+		if (state_seedlingWatering)
+		{
+			if (timer_seedlingTime.check())
 			{
-				Serial.print("timer_seedlingInterval.check() == true");
-				state_valves[7] = true;
-				timer_seedlingTime.reset();
-				state_seedlingWatering = true;
+				//Serial.println("Seedling Stop");
+				control_resetSeedlingValve();
+				state_seedlingWatering = false;
 			}
 		}
 		else
 		{
-			if (timer_seedlingTime.check())
-			{
-				Serial.print("timer_seedlingTime.check() == true");
-				control_resetSeedlingValve();
-				state_seedlingWatering = false;
-			}
+			control_resetSeedlingValve();
 		}
 		
 	}	
@@ -173,8 +180,8 @@ void control_manualZoneIncrement()
 	{
 		state_manualZone = 0;
 	}
-	Serial.print("state_manualZone = ");
-	Serial.println(state_manualZone);
+	//Serial.print("state_manualZone = ");
+	//Serial.println(state_manualZone);
 }
 
 void control_manualPowerToggle()
@@ -184,8 +191,8 @@ void control_manualPowerToggle()
 	{
 		state_sequencePos = -1;
 	}
-	Serial.print("state_manualPower = ");
-	Serial.println(state_manualPower);
-	Serial.print("state_sequencePos = ");
-	Serial.println(state_sequencePos);
+	//Serial.print("state_manualPower = ");
+	//Serial.println(state_manualPower);
+	//Serial.print("state_sequencePos = ");
+	//Serial.println(state_sequencePos);
 }
