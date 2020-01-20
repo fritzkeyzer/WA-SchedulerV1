@@ -71,8 +71,8 @@ void sd_error(bool _error)
 			time_logErrorSince = time_now;
 			timerSDCheck.setInterval(sdCheck_error);
 		}
+		if (!error_SD)	Serial.println("error_SD = true");
 		error_SD = true;
-		Serial.println("error_SD = true");
 	}
 	else
 	{
@@ -80,8 +80,8 @@ void sd_error(bool _error)
 		{
 			timerSDCheck.setInterval(sdCheck_good);
 		}
+		if (error_SD)	Serial.println("error_SD = false");
 		error_SD = false;
-		Serial.println("error_SD = false");
 	}
 	
 }
@@ -101,28 +101,28 @@ void sd_readSettings()
 	IniFile ini(fileName_settings);
 	if (!ini.open())
 	{
-		Serial.print("Ini file ");
-		Serial.print(fileName_settings);
-		Serial.println(" does not exist");
+		//Serial.print("Ini file ");
+		//Serial.print(fileName_settings);
+		//Serial.println(" does not exist");
 		sd_error(true);
 		return;
 	}
-	Serial.println("Ini file exists");
+	//Serial.println("Ini file exists");
 
 	// Check the file is valid. This can be used to warn if any lines
 	// are longer than the buffer.
 	if (!ini.validate(buffer, bufferLen))
 	{
-		Serial.print("Ini file ");
-		Serial.print(fileName_settings);
-		Serial.println(" not valid -> error_SD = true");
+		//Serial.print("Ini file ");
+		//Serial.print(fileName_settings);
+		//Serial.println(" not valid -> error_SD = true");
 		//printErrorMessage(ini.getError());
 		sd_error(true);
 		return;
 	}
 	else
 	{
-		Serial.println("Ini file valid -> error_SD = false");
+		//Serial.println("Ini file valid -> error_SD = false");
 		sd_error(false);
 	}
 	
@@ -141,14 +141,14 @@ void sd_readSettings()
 		buf[0] = buffer[3];
 		buf[1] = buffer[4];
 		setting_scheduleStartMinute = atoi(buf);
-		Serial.print("Schedule start: ");
-		Serial.print(setting_scheduleStartHour);
-		Serial.print(":");
-		Serial.println(setting_scheduleStartMinute);
+		//Serial.print("Schedule start: ");
+		//Serial.print(setting_scheduleStartHour);
+		//Serial.print(":");
+		//Serial.println(setting_scheduleStartMinute);
 	}
 	else
 	{
-		Serial.print("Could not read 'start_time' from section 'SCHEDULE'");
+		//Serial.print("Could not read 'start_time' from section 'SCHEDULE'");
 		sd_error(true);
 		return;
 	}
@@ -166,12 +166,12 @@ void sd_readSettings()
 		buf[0] = buffer[3];
 		buf[1] = buffer[4];
 		setting_scheduleMinutesPerZoneLight = 60*hours + atoi(buf);
-		Serial.print("Schedule mins per zone light: ");
-		Serial.println(setting_scheduleMinutesPerZoneLight);
+		//Serial.print("Schedule mins per zone light: ");
+		//Serial.println(setting_scheduleMinutesPerZoneLight);
 	}
 	else
 	{
-		Serial.print("Could not read 'time_per_zone_light' from section 'SCHEDULE'");
+		//Serial.print("Could not read 'time_per_zone_light' from section 'SCHEDULE'");
 		sd_error(true);
 		return;
 	}
@@ -189,12 +189,12 @@ void sd_readSettings()
 		buf[0] = buffer[3];
 		buf[1] = buffer[4];
 		setting_scheduleMinutesPerZoneHeavy = 60*hours + atoi(buf);
-		Serial.print("Schedule mins per zone heavy: ");
-		Serial.println(setting_scheduleMinutesPerZoneHeavy);
+		//Serial.print("Schedule mins per zone heavy: ");
+		//Serial.println(setting_scheduleMinutesPerZoneHeavy);
 	}
 	else
 	{
-		Serial.print("Could not read 'time_per_zone_heavy' from section 'SCHEDULE'");
+		//Serial.print("Could not read 'time_per_zone_heavy' from section 'SCHEDULE'");
 		sd_error(true);
 		return;
 	}
@@ -210,15 +210,24 @@ void sd_readSettings()
 		int hours = atoi(buf);
 		buf[0] = buffer[3];
 		buf[1] = buffer[4];
-		setting_seedlingInterval = 60*hours + atoi(buf);
-		Serial.print("Schedule seedling_interval: ");
-		Serial.println(setting_seedlingInterval);
-		timer_seedlingInterval = SimpleThread(60000L * setting_seedlingInterval);
+		
+		long newSetting = 60*hours + atoi(buf);
+		
+		if (newSetting != setting_seedlingInterval)
+		{
+			setting_seedlingInterval = newSetting;
+			timer_seedlingInterval = SimpleThread(60000L * setting_seedlingInterval);
+		}
+		
+		//Serial.print("Schedule seedling_interval: ");
+		//Serial.println(setting_seedlingInterval);
+		//Serial.println(60000L * setting_seedlingInterval);
+		
 		//timer_seedlingInterval.check();
 	}
 	else
 	{
-		Serial.print("Could not read 'seedling_interval' from section 'SCHEDULE'");
+		//Serial.print("Could not read 'seedling_interval' from section 'SCHEDULE'");
 		sd_error(true);
 		return;
 	}
@@ -234,15 +243,22 @@ void sd_readSettings()
 		int hours = atoi(buf);
 		buf[0] = buffer[3];
 		buf[1] = buffer[4];
-		setting_seedlingTime = 60*hours + atoi(buf);
-		Serial.print("Schedule seedling_time: ");
-		Serial.println(setting_seedlingTime);
-		timer_seedlingTime = SimpleThread(60000L * setting_seedlingTime);
+		
+		long newSetting = 60*hours + atoi(buf);
+		
+		if (newSetting != setting_seedlingTime)
+		{
+			setting_seedlingTime = newSetting;
+			timer_seedlingTime = SimpleThread(60000L * setting_seedlingTime);
+		}
+		
+		//Serial.print("Schedule seedling_time: ");
+		//Serial.println(setting_seedlingTime);
 		//timer_seedlingTime.check();
 	}
 	else
 	{
-		Serial.print("Could not read 'seedling_time' from section 'SCHEDULE'");
+		//Serial.print("Could not read 'seedling_time' from section 'SCHEDULE'");
 		sd_error(true);
 		return;
 	}
@@ -260,12 +276,12 @@ void sd_readSettings()
 		//buf[0] = buffer[3];
 		//buf[1] = buffer[4];
 		setting_flowVolumePerTick = atof(buffer);
-		Serial.print("FLOW_METER volume per tick: ");
-		Serial.println(setting_flowVolumePerTick);
+		//Serial.print("FLOW_METER volume per tick: ");
+		//Serial.println(setting_flowVolumePerTick);
 	}
 	else
 	{
-		Serial.print("Could not read 'volume_per_tick' from section 'FLOW_METER'");
+		//Serial.print("Could not read 'volume_per_tick' from section 'FLOW_METER'");
 		sd_error(true);
 		return;
 	}
@@ -274,11 +290,11 @@ void sd_readSettings()
 void sd_writeSettings()
 {
 	// delete the file:
-	Serial.println("Removing settings");
+	//Serial.println("Removing settings");
 	SD.remove(fileName_settings);
 	
-	Serial.print("Creating ");
-	Serial.println(fileName_settings);
+	//Serial.print("Creating ");
+	//Serial.println(fileName_settings);
 	
 	file_settings = SD.open(fileName_settings, FILE_WRITE);
 	if (file_settings)
@@ -312,8 +328,6 @@ void sd_writeSettings()
 		
 		file_settings.close();
 	}
-	
-	
 	
 	
 	/*
@@ -378,6 +392,6 @@ void sd_log(String event, String value)
 void sd_checkSDCard()
 {
 	//check card
-	Serial.println("Checking SD Card");
+	//Serial.println("Checking SD Card");
 	sd_readSettings();
 }
