@@ -204,7 +204,10 @@ void display_screen_irrigatingPressure()
 	if (state_manualPower) pos = state_manualZone;
 	if (state_seedlingWatering) pos = 7;
 	sprintf(arr, "Zone %d", pos + 1);
-	lcd.print(arr);
+	if (pos == 7)
+		lcd.print("Zone Seedling");
+	else
+		lcd.print(arr);
 	lcd.setCursor(0, 1);
 	sprintf(arr, "%.2f bar", state_pressure);
 	//sprintf(arr, "%.0f raw", state_pressure);
@@ -219,7 +222,10 @@ void display_screen_irrigatingVolume()
 	if (state_manualPower) pos = state_manualZone;
 	if (state_seedlingWatering) pos = 7;
 	sprintf(arr, "Zone %d", pos + 1);
-	lcd.print(arr);
+	if (pos == 7)
+		lcd.print("Zone Seedling");
+	else
+		lcd.print(arr);
 	lcd.setCursor(0, 1);
 	sprintf(arr, "%.0f litres", min(state_flowVolume, 999999));
 	lcd.print(arr);
